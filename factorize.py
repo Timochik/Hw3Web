@@ -28,19 +28,28 @@ def factorize_parallel(number):
         p = multiprocessing.Process(target=worker, args=(number, queue))
         processes.append(p)
 
-    for p in processes:
-        p.start()
+    try:
+        for p in processes:
+            p.start()
 
-    for p in processes:
-        p.join()
+        for p in processes:
+            p.join()
 
-    results = [queue.get() for _ in range(num_cores)]
-    return [item for sublist in results for item in sublist]
+        results = [queue.get() for _ in range(num_cores)]
+        return [item for sublist in results for item in sublist]
+
+    except Exception as e:
+        print("Error occurred:", e)
+        return []
 
 def factorize(*numbers):
     results = []
     for number in numbers:
-        results.append(factorize_sync(number))
+        try:
+            results.append(factorize_sync(number))
+        except Exception as e:
+            print("Error occurred:", e)
+            results.append([])  # Append an empty list if an error occurs
     return results
 
 a, b, c, d = factorize(128, 255, 99999, 10651060)
